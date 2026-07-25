@@ -1,0 +1,161 @@
+/* ==============================
+   Artifact Form Pages
+============================== */
+
+.artifact-form-page {
+  width: min(900px, 92%);
+  margin: 0 auto;
+  padding: 3rem 0 5rem;
+}
+
+.artifact-form-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.artifact-form-header h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+}
+
+.artifact-form-header > p:last-child {
+  max-width: 650px;
+  margin: 1rem auto 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.artifact-form-section {
+  width: 100%;
+}
+
+.artifact-form {
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background-color: var(--surface);
+  padding: 1.5rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.form-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.form-field label span {
+  color: var(--gold-light);
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+  width: 100%;
+}
+
+.form-field textarea {
+  min-height: 180px;
+}
+
+.form-helper-text {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.selected-file {
+  margin: 0;
+  border-left: 3px solid var(--forest-light);
+  color: var(--text);
+  padding-left: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.form-actions button {
+  min-height: 44px;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form-actions button[type="submit"] {
+  background-color: var(--forest);
+  color: white;
+}
+
+.form-actions button[type="submit"]:hover {
+  background-color: var(--forest-light);
+}
+
+.form-actions .secondary-button {
+  border: 1px solid var(--border);
+  background-color: #111923;
+  color: var(--text-muted);
+}
+
+.form-actions .secondary-button:hover {
+  border-color: var(--gold);
+  color: var(--text);
+}
+
+.form-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 650px) {
+  .artifact-form-page {
+    padding-top: 2rem;
+  }
+
+  .artifact-form {
+    padding: 1rem;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* ==============================
+   Edit Artifact Image Preview
+============================== */
+
+.current-artifact-image {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.current-artifact-image img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background-color: #0a1016;
+  object-fit: contain;
+}

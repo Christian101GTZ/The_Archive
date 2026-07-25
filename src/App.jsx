@@ -11,14 +11,12 @@ function App() {
     <>
       <Navbar />
 
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/submit" element={<SubmitArtifact />} />
-          <Route path="/artifacts/:id" element={<ArtifactDetails />} />
-          <Route path="/artifacts/:id/edit" element={<EditArtifact />} />
-        </Routes>
-      </main>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/submit" element={<SubmitArtifact />} />
+        <Route path="/artifacts/:id" element={<ArtifactDetails />} />
+        <Route path="/artifacts/:id/edit" element={<EditArtifact />} />
+      </Routes>
     </>
   );
 }

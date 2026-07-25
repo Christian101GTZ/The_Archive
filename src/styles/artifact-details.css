@@ -1,0 +1,312 @@
+/* ==============================
+   Artifact Details Page
+============================== */
+
+.artifact-details-page {
+  width: min(900px, 92%);
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.artifact-details {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background-color: var(--surface);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.artifact-details-header {
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.artifact-details-header h2 {
+  margin: 0.4rem 0;
+  color: var(--text);
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.2;
+}
+
+.artifact-year {
+  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+}
+
+.artifact-details-image {
+  display: block;
+  width: 100%;
+  max-height: 650px;
+  background-color: #0a1016;
+  object-fit: contain;
+}
+
+.artifact-details-description {
+  margin: 0;
+  padding: 1.5rem;
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.artifact-details-tags {
+  margin: 0 1.5rem 1.5rem;
+  color: var(--text-muted);
+}
+
+.artifact-details-tags strong {
+  color: var(--gold-light);
+}
+
+.artifact-details-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 1.5rem 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.artifact-details-actions button,
+.artifact-details-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.artifact-details-actions button {
+  border: none;
+  background-color: var(--forest);
+  color: white;
+  cursor: pointer;
+}
+
+.artifact-details-actions button:hover {
+  background-color: var(--forest-light);
+}
+
+.artifact-details-actions a {
+  border: 1px solid var(--border);
+  background-color: #111923;
+  color: var(--gold-light);
+}
+
+.artifact-details-actions a:hover {
+  border-color: var(--gold);
+  background-color: var(--surface-hover);
+}
+
+.artifact-details-actions .delete-button {
+  background-color: var(--danger);
+}
+
+.artifact-details-actions .delete-button:hover {
+  background-color: #df5d5d;
+}
+
+.artifact-details-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* ==============================
+   Comments Section
+============================== */
+
+.comments-section {
+  margin-top: 2rem;
+}
+
+.comments-section h3 {
+  margin: 0 0 1rem;
+  color: var(--gold-light);
+  font-size: 1.6rem;
+}
+
+.comment-form {
+  display: grid;
+  gap: 0.9rem;
+  width: 100%;
+  margin: 0 0 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background-color: var(--surface);
+  padding: 1.25rem;
+}
+
+.comment-form label {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 140px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background-color: #111923;
+  color: var(--text);
+  padding: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.comment-form textarea:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+
+.comment-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.comment-form-footer span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.comment-form-footer button {
+  border: none;
+  border-radius: 8px;
+  background-color: var(--forest);
+  color: white;
+  padding: 0.65rem 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.comment-form-footer button:hover {
+  background-color: var(--forest-light);
+}
+
+.comment-form-footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.comments-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.comment-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background-color: var(--surface);
+  padding: 1.15rem;
+}
+
+.comment-card p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.comment-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.comment-footer time {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.comment-footer button {
+  border: 1px solid rgba(199, 75, 75, 0.45);
+  border-radius: 7px;
+  background-color: transparent;
+  color: #ef8a8a;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+}
+
+.comment-footer button:hover {
+  background-color: rgba(199, 75, 75, 0.12);
+}
+
+.comment-footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.empty-comments {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.error-message {
+  border: 1px solid rgba(199, 75, 75, 0.45);
+  border-radius: 8px;
+  background-color: rgba(199, 75, 75, 0.1);
+  color: #f3a3a3;
+  padding: 0.8rem 1rem;
+}
+
+.back-home-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: var(--gold-light);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back-home-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 650px) {
+  .artifact-details-page {
+    width: min(94%, 900px);
+    padding-top: 1rem;
+  }
+
+  .artifact-details-header,
+  .artifact-details-description {
+    padding: 1rem;
+  }
+
+  .artifact-details-tags,
+  .artifact-details-actions {
+    margin-right: 1rem;
+    margin-left: 1rem;
+  }
+
+  .artifact-details-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .artifact-details-actions button,
+  .artifact-details-actions a {
+    width: 100%;
+  }
+
+  .comment-form-footer,
+  .comment-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .comment-form-footer button,
+  .comment-footer button {
+    width: 100%;
+  }
+}
