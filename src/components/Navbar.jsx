@@ -1,6 +1,17 @@
 import { Link, NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
+  const { user, signOut } = useAuth();
+
+  async function handleLogout() {
+    const { error } = await signOut();
+
+    if (error) {
+      console.error("Unable to log out:", error.message);
+    }
+  }
+
   return (
     <header className="site-header">
       <nav className="navbar">
@@ -11,7 +22,7 @@ function Navbar() {
 
           <div>
             <h1>The Archive Project</h1>
-            <p>Preserving media, history, and culture</p>
+            <p>Community-driven media preservation</p>
           </div>
         </Link>
 
@@ -23,17 +34,57 @@ function Navbar() {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            Home
+            Browse
           </NavLink>
 
-          <NavLink
-            to="/submit"
-            className={({ isActive }) =>
-              isActive ? "nav-link submit-link active" : "nav-link submit-link"
-            }
-          >
-            Submit Artifact
-          </NavLink>
+          {user ? (
+            <>
+              <NavLink
+                to="/submit"
+                className={({ isActive }) =>
+                  isActive
+                    ? "nav-link submit-link active"
+                    : "nav-link submit-link"
+                }
+              >
+                Create Post
+              </NavLink>
+
+              <span className="nav-user">
+                {user.email}
+              </span>
+
+              <button
+                type="button"
+                className="nav-link logout-button"
+                onClick={handleLogout}
+              >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+              >
+                Log In
+              </NavLink>
+
+              <NavLink
+                to="/signup"
+                className={({ isActive }) =>
+                  isActive
+                    ? "nav-link submit-link active"
+                    : "nav-link submit-link"
+                }
+              >
+                Sign Up
+              </NavLink>
+            </>
+          )}
         </div>
       </nav>
     </header>

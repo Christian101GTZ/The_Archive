@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
 import { supabase } from "../services/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 
 import ArtifactDetailsHeader from "../components/ArtifactDetailsHeader";
 import ArtifactDetailsActions from "../components/ArtifactDetailsActions";
@@ -8,189 +14,199 @@ import CommentForm from "../components/CommentForm";
 import CommentList from "../components/CommentList";
 
 function ArtifactDetails() {
-  // useParams reads the artifact ID from the URL.
-  // Example URL: /artifacts/12
-  // In that case, id would be "12".
   const { id } = useParams();
-
-  // useNavigate lets the page redirect the user to another route.
   const navigate = useNavigate();
+  const { user, authLoading } = useAuth();
 
-  // ==============================
-  // Artifact and Comment Data
-  // ==============================
-
-  // Stores the artifact loaded from Supabase.
-  // It starts as null because the data has not loaded yet.
   const [artifact, setArtifact] = useState(null);
-
-  // Stores all comments connected to this artifact.
   const [comments, setComments] = useState([]);
-
-  // Stores the text currently typed into the comment form.
   const [commentContent, setCommentContent] = useState("");
 
-  // ==============================
-  // Loading States
-  // ==============================
-
-  // Tracks whether the artifact is still loading.
   const [loading, setLoading] = useState(true);
-
-  // Tracks whether the comments are still loading.
   const [commentsLoading, setCommentsLoading] = useState(true);
-
-  // Prevents the delete button from being clicked repeatedly.
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
+  const [isPostingComment, setIsPostingComment] =
+    useState(false);
+  const [deletingCommentId, setDeletingCommentId] =
+    useState(null);
 
-  // Prevents multiple upvotes from being sent at the same time.
-  const [isUpvoting, setIsUpvoting] = useState(false);
-
-  // Prevents the comment form from being submitted repeatedly.
-  const [isPostingComment, setIsPostingComment] = useState(false);
-
-  // Stores the ID of the comment currently being deleted.
-  // This allows only that comment's delete button to show "Deleting..."
-  const [deletingCommentId, setDeletingCommentId] = useState(null);
-
-  // ==============================
-  // Error Messages
-  // ==============================
-
-  // Stores errors related to the artifact.
   const [errorMessage, setErrorMessage] = useState("");
-
-  // Stores errors related to comments.
   const [commentError, setCommentError] = useState("");
 
-  // ==============================
-  // Load Data When the Page Opens
-  // ==============================
-
   useEffect(() => {
-    // Load the artifact and its comments when the component first appears.
+    if (authLoading) {
+      return;
+    }
+
     fetchArtifact();
     fetchComments();
-
-    // This effect runs again if the artifact ID in the URL changes.
-  }, [id]);
-
-  // ==============================
-  // Fetch the Artifact
-  // ==============================
+  }, [id, authLoading, user?.id]);
 
   async function fetchArtifact() {
     setLoading(true);
     setErrorMessage("");
 
-    // Search the "artifact" table for one row with the matching ID.
     const { data, error } = await supabase
       .from("artifact")
-      .select("*")
+      .select(`
+        *,
+        votes (
+          id,
+          user_id,
+          vote_value
+        )
+      `)
       .eq("id", id)
       .single();
 
-    // If Supabase returns an error, show an error message.
     if (error) {
-      console.error(error);
-      setErrorMessage("Artifact could not be found.");
+      console.error("Unable to load artifact:", error);
+      setErrorMessage("This entry could not be found.");
       setArtifact(null);
       setLoading(false);
       return;
     }
 
-    // Save the artifact data in state so React can display it.
     setArtifact(data);
-
-    // The artifact has finished loading.
     setLoading(false);
   }
-
-  // ==============================
-  // Fetch the Comments
-  // ==============================
 
   async function fetchComments() {
     setCommentsLoading(true);
     setCommentError("");
 
-    // Select comments that belong to the current artifact.
-    // Newest comments appear first.
     const { data, error } = await supabase
       .from("comments")
-      .select("*")
+      .select(`
+        id,
+        artifact_id,
+        user_id,
+        content,
+        created_at
+      `)
       .eq("artifact_id", id)
       .order("created_at", { ascending: false });
 
-    // Show an error if the comments could not be loaded.
     if (error) {
-      console.error(error);
-      setCommentError("Comments could not be loaded.");
+      console.error("Unable to load comments:", error);
+      setCommentError("The discussion could not be loaded.");
+      setComments([]);
       setCommentsLoading(false);
       return;
     }
 
-    // Save the comments in state.
-    // If data is missing, use an empty array instead.
     setComments(data || []);
-
-    // The comments have finished loading.
     setCommentsLoading(false);
   }
 
-  // ==============================
-  // Upvote the Artifact
-  // ==============================
-
-  async function handleUpvote() {
-    // Stop the function if the artifact has not loaded.
+  async function handleVote(voteValue) {
     if (!artifact) {
       return;
     }
 
-    setIsUpvoting(true);
-    setErrorMessage("");
+    if (!user) {
+      navigate("/login", {
+        state: {
+          from: {
+            pathname: `/artifacts/${id}`,
+          },
+        },
+      });
 
-    // Use the current number of upvotes and add one.
-    // If upvotes is null, start from zero.
-    const newUpvoteCount = (artifact.upvotes || 0) + 1;
-
-    // Update the artifact's upvote count in Supabase.
-    // select().single() returns the updated artifact.
-    const { data, error } = await supabase
-      .from("artifact")
-      .update({
-        upvotes: newUpvoteCount,
-      })
-      .eq("id", id)
-      .select()
-      .single();
-
-    setIsUpvoting(false);
-
-    // Show an error if the update fails.
-    if (error) {
-      console.error(error);
-      setErrorMessage(error.message);
       return;
     }
 
-    // Replace the old artifact state with the updated record.
-    // This updates the upvote number on the page.
-    setArtifact(data);
-  }
+    if (isVoting) {
+      return;
+    }
 
-  // ==============================
-  // Delete the Artifact
-  // ==============================
+    setIsVoting(true);
+    setErrorMessage("");
 
-  async function handleDelete() {
-    // Ask for confirmation before permanently deleting the artifact.
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this artifact?"
+    const existingVote = artifact.votes?.find(
+      (vote) => vote.user_id === user.id
     );
 
-    // Stop if the user selects Cancel.
+    try {
+      let updatedVotes = artifact.votes || [];
+
+      if (existingVote?.vote_value === voteValue) {
+        const { error } = await supabase
+          .from("votes")
+          .delete()
+          .eq("id", existingVote.id)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        updatedVotes = updatedVotes.filter(
+          (vote) => vote.id !== existingVote.id
+        );
+      } else if (existingVote) {
+        const { data, error } = await supabase
+          .from("votes")
+          .update({
+            vote_value: voteValue,
+          })
+          .eq("id", existingVote.id)
+          .eq("user_id", user.id)
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        updatedVotes = updatedVotes.map((vote) =>
+          vote.id === existingVote.id ? data : vote
+        );
+      } else {
+        const { data, error } = await supabase
+          .from("votes")
+          .insert({
+            artifact_id: artifact.id,
+            user_id: user.id,
+            vote_value: voteValue,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        updatedVotes = [...updatedVotes, data];
+      }
+
+      setArtifact((currentArtifact) => ({
+        ...currentArtifact,
+        votes: updatedVotes,
+      }));
+    } catch (error) {
+      console.error("Unable to save vote:", error);
+      setErrorMessage(
+        error.message || "Your vote could not be saved."
+      );
+    } finally {
+      setIsVoting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!artifact || !user || artifact.user_id !== user.id) {
+      setErrorMessage(
+        "You do not have permission to delete this post."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Delete this archive entry? This cannot be undone."
+    );
+
     if (!confirmed) {
       return;
     }
@@ -198,148 +214,182 @@ function ArtifactDetails() {
     setIsDeleting(true);
     setErrorMessage("");
 
-    // Delete the artifact row with the matching ID.
     const { error } = await supabase
       .from("artifact")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
-    // Show an error if the delete request fails.
     if (error) {
-      console.error(error);
-      setErrorMessage(error.message);
+      console.error("Unable to delete artifact:", error);
+      setErrorMessage("This entry could not be deleted.");
       setIsDeleting(false);
       return;
     }
 
-    // Redirect to the home page after a successful deletion.
     navigate("/");
   }
 
-  // ==============================
-  // Add a Comment
-  // ==============================
-
   async function handleCommentSubmit(event) {
-    // Prevent the browser from refreshing when the form is submitted.
     event.preventDefault();
 
-    // Remove extra spaces from the beginning and end.
+    if (!user) {
+      navigate("/login", {
+        state: {
+          from: {
+            pathname: `/artifacts/${id}`,
+          },
+        },
+      });
+
+      return;
+    }
+
+    if (isPostingComment) {
+      return;
+    }
+
     const trimmedComment = commentContent.trim();
 
-    // Do not allow an empty comment.
     if (!trimmedComment) {
-      setCommentError("Please enter a comment.");
+      setCommentError("Write something before posting.");
       return;
     }
 
     setIsPostingComment(true);
     setCommentError("");
 
-    // Insert the new comment into Supabase.
-    // artifact_id connects the comment to this artifact.
     const { data, error } = await supabase
       .from("comments")
       .insert({
         artifact_id: id,
+        user_id: user.id,
         content: trimmedComment,
       })
-      .select()
+      .select(`
+        id,
+        artifact_id,
+        user_id,
+        content,
+        created_at
+      `)
       .single();
 
     setIsPostingComment(false);
 
-    // Show an error if the comment could not be added.
     if (error) {
-      console.error(error);
-      setCommentError(error.message);
+      console.error("Unable to post comment:", error);
+      setCommentError(
+        error.message || "Your comment could not be posted."
+      );
       return;
     }
 
-    // Add the new comment to the beginning of the current comments array.
-    // This updates the page without fetching all comments again.
-    setComments((currentComments) => [data, ...currentComments]);
+    setComments((currentComments) => [
+      data,
+      ...currentComments,
+    ]);
 
-    // Clear the textarea after the comment is posted.
     setCommentContent("");
   }
 
-  // ==============================
-  // Delete a Comment
-  // ==============================
-
   async function handleDeleteComment(commentId) {
-    // Ask for confirmation before deleting the comment.
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this comment?"
+    if (!user) {
+      navigate("/login", {
+        state: {
+          from: {
+            pathname: `/artifacts/${id}`,
+          },
+        },
+      });
+
+      return;
+    }
+
+    const commentToDelete = comments.find(
+      (comment) => comment.id === commentId
     );
 
-    // Stop if the user selects Cancel.
+    if (!commentToDelete) {
+      setCommentError("That comment could not be found.");
+      return;
+    }
+
+    if (commentToDelete.user_id !== user.id) {
+      setCommentError(
+        "You do not have permission to delete this comment."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm("Delete this comment?");
+
     if (!confirmed) {
       return;
     }
 
-    // Save the comment ID so its button can show "Deleting..."
     setDeletingCommentId(commentId);
     setCommentError("");
 
-    // Delete the selected comment from Supabase.
     const { error } = await supabase
       .from("comments")
       .delete()
-      .eq("id", commentId);
+      .eq("id", commentId)
+      .eq("user_id", user.id);
 
-    // Clear the deleting state after Supabase responds.
     setDeletingCommentId(null);
 
-    // Show an error if the delete request fails.
     if (error) {
-      console.error(error);
-      setCommentError(error.message);
+      console.error("Unable to delete comment:", error);
+      setCommentError(
+        error.message || "The comment could not be deleted."
+      );
       return;
     }
 
-    // Remove the deleted comment from the comments array.
-    // filter keeps every comment except the deleted one.
     setComments((currentComments) =>
-      currentComments.filter((comment) => comment.id !== commentId)
+      currentComments.filter(
+        (comment) => comment.id !== commentId
+      )
     );
   }
 
-  // ==============================
-  // Helper Function
-  // ==============================
-
   function formatCommentDate(dateString) {
-    // Convert the Supabase date into a readable local date and time.
     return new Date(dateString).toLocaleString();
   }
 
-  // ==============================
-  // Loading and Error Screens
-  // ==============================
-
-  // Show this while the artifact is being loaded.
-  if (loading) {
-    return <p>Loading artifact...</p>;
+  if (loading || authLoading) {
+    return <p>Loading entry...</p>;
   }
 
-  // Show this if the artifact does not exist or could not be loaded.
   if (!artifact) {
-    return <p>{errorMessage || "Artifact could not be found."}</p>;
+    return (
+      <p>
+        {errorMessage || "This entry could not be found."}
+      </p>
+    );
   }
 
-  // ==============================
-  // Page Content
-  // ==============================
+  const votes = artifact.votes || [];
+
+  const score = votes.reduce(
+    (total, vote) => total + vote.vote_value,
+    0
+  );
+
+  const currentUserVote =
+    votes.find((vote) => vote.user_id === user?.id)
+      ?.vote_value || 0;
+
+  const isOwner = Boolean(
+    user && artifact.user_id === user.id
+  );
 
   return (
     <main className="artifact-details-page">
       <article className="artifact-details">
-        {/* Displays the artifact category, title, and year. */}
         <ArtifactDetailsHeader artifact={artifact} />
 
-        {/* Only display the image if the artifact has an image URL. */}
         {artifact.image_url && (
           <img
             className="artifact-details-image"
@@ -348,62 +398,77 @@ function ArtifactDetails() {
           />
         )}
 
-        {/* Displays the full artifact description. */}
         <p className="artifact-details-description">
           {artifact.description}
         </p>
 
-        {/* Only display the tags section if tags were provided. */}
         {artifact.tags && (
           <p className="artifact-details-tags">
-            <strong>Tags:</strong> {artifact.tags}
+            <strong>Filed under:</strong> {artifact.tags}
           </p>
         )}
 
-        {/* Displays the upvote, edit, and delete controls. */}
         <ArtifactDetailsActions
           artifact={artifact}
-          isUpvoting={isUpvoting}
+          score={score}
+          currentUserVote={currentUserVote}
+          isVoting={isVoting}
           isDeleting={isDeleting}
-          handleUpvote={handleUpvote}
+          isOwner={isOwner}
+          handleVote={handleVote}
           handleDelete={handleDelete}
         />
 
-        {/* Displays artifact-related errors when they exist. */}
         {errorMessage && (
-          <p className="error-message">{errorMessage}</p>
+          <p className="error-message">
+            {errorMessage}
+          </p>
         )}
       </article>
 
       <section className="comments-section">
-        {/* The number updates whenever the comments array changes. */}
-        <h3>Comments ({comments.length})</h3>
+        <h3>Discussion ({comments.length})</h3>
 
-        {/* Displays the textarea and comment submission button. */}
-        <CommentForm
-          commentContent={commentContent}
-          setCommentContent={setCommentContent}
-          handleCommentSubmit={handleCommentSubmit}
-          isPostingComment={isPostingComment}
-        />
-
-        {/* Displays comment-related errors when they exist. */}
-        {commentError && (
-          <p className="error-message">{commentError}</p>
+        {user ? (
+          <CommentForm
+            commentContent={commentContent}
+            setCommentContent={setCommentContent}
+            handleCommentSubmit={handleCommentSubmit}
+            isPostingComment={isPostingComment}
+          />
+        ) : (
+          <p className="comment-login-message">
+            <Link
+              to="/login"
+              state={{
+                from: {
+                  pathname: `/artifacts/${id}`,
+                },
+              }}
+            >
+              Log in
+            </Link>{" "}
+            to join the discussion.
+          </p>
         )}
 
-        {/* Displays the loading message, empty state, or comment cards. */}
+        {commentError && (
+          <p className="error-message">
+            {commentError}
+          </p>
+        )}
+
         <CommentList
           comments={comments}
           commentsLoading={commentsLoading}
           deletingCommentId={deletingCommentId}
           handleDeleteComment={handleDeleteComment}
           formatCommentDate={formatCommentDate}
+          currentUserId={user?.id}
         />
 
-        {/* Returns the user to the home page. */}
         <Link className="back-home-link" to="/">
-          ← Back to Home
+          ← Return to the Archive
         </Link>
       </section>
     </main>

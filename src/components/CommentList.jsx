@@ -8,13 +8,13 @@ function CommentList({
   formatCommentDate,
 }) {
   if (commentsLoading) {
-    return <p>Loading comments...</p>;
+    return <p>Loading discussion...</p>;
   }
 
   if (comments.length === 0) {
     return (
       <p className="empty-comments">
-        No comments yet. Start the discussion.
+        No replies yet. Be the first to join the discussion.
       </p>
     );
   }

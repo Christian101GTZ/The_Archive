@@ -1,21 +1,16 @@
-import { Link } from "react-router-dom";
 import ArtifactCard from "./ArtifactCard";
 
 function ArtifactFeed({
   artifacts,
   votingId,
   handleVote,
+  currentUserId,
 }) {
   if (artifacts.length === 0) {
     return (
       <div className="archive-empty-state">
         <h3>No artifacts found</h3>
-
-        <p>
-          Try changing your search terms or submit a new artifact.
-        </p>
-
-        <Link to="/submit">Submit an Artifact</Link>
+        <p>Try another search or add something to the archive.</p>
       </div>
     );
   }
@@ -28,6 +23,7 @@ function ArtifactFeed({
           artifact={artifact}
           isVoting={votingId === artifact.id}
           handleVote={handleVote}
+          currentUserId={currentUserId}
         />
       ))}
     </div>

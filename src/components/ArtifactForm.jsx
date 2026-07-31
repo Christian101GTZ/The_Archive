@@ -10,7 +10,7 @@ function ArtifactForm({
   currentImageUrl = "",
   newImageFile = null,
   handleImageChange,
-  imageLabel = "Artifact Image",
+  imageLabel = "Post Image",
   imageHelperText = "Optional. Upload a PNG, JPEG, or WebP image.",
 }) {
   return (
@@ -26,7 +26,7 @@ function ArtifactForm({
           type="text"
           value={formData.title}
           onChange={handleChange}
-          placeholder="Enter the artifact title"
+          placeholder="Give your post a title"
           required
         />
       </div>
@@ -41,12 +41,12 @@ function ArtifactForm({
           name="description"
           value={formData.description}
           onChange={handleChange}
-          placeholder="Explain what this artifact is and why it should be preserved."
+          placeholder="Describe what you are sharing and why it matters."
           required
         />
 
         <p className="form-helper-text">
-          Include useful historical, cultural, or preservation details.
+          Add any useful background, context, or preservation details.
         </p>
       </div>
 
@@ -62,7 +62,7 @@ function ArtifactForm({
           onChange={handleChange}
           required
         >
-          <option value="">Select a category</option>
+          <option value="">Choose a category</option>
           <option value="Physical Media">Physical Media</option>
           <option value="Lost Media">Lost Media</option>
           <option value="Preservation Project">
@@ -87,7 +87,7 @@ function ArtifactForm({
 
         {currentImageUrl && (
           <div className="current-artifact-image">
-            <p className="form-helper-text">Current image:</p>
+            <p className="form-helper-text">Current image</p>
 
             <img
               src={currentImageUrl}
@@ -121,7 +121,7 @@ function ArtifactForm({
           type="text"
           value={formData.year}
           onChange={handleChange}
-          placeholder="Example: 1988, Early 1990s, Unknown"
+          placeholder="Example: 1988, early 1990s, or unknown"
         />
       </div>
 
@@ -134,11 +134,11 @@ function ArtifactForm({
           type="text"
           value={formData.tags}
           onChange={handleChange}
-          placeholder="Example: Nintendo, magazine, gaming history"
+          placeholder="Example: Nintendo, magazines, gaming history"
         />
 
         <p className="form-helper-text">
-          Separate related topics with commas.
+          Separate tags with commas.
         </p>
       </div>
 

@@ -65,7 +65,7 @@
   min-height: 48px;
   border-radius: 9px;
   background-color: var(--forest);
-  color: white;
+  color: #ffffff;
   padding: 0.8rem 1.3rem;
   font-weight: 800;
   text-decoration: none;
@@ -291,6 +291,10 @@
   border-top: 1px solid var(--border);
 }
 
+/* ==============================
+   Voting Controls
+============================== */
+
 .artifact-voting {
   display: inline-flex;
   align-items: center;
@@ -310,17 +314,38 @@
   border-radius: 6px;
   background-color: transparent;
   color: var(--text-muted);
+  padding: 0;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
 }
 
-.artifact-voting button:hover {
+.artifact-voting button:hover:not(:disabled) {
   background-color: var(--surface-hover);
   color: var(--gold-light);
+  transform: translateY(-1px);
+}
+
+.artifact-voting button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .artifact-voting button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.artifact-voting button.active-vote {
+  background-color: var(--forest);
+  color: #ffffff;
+}
+
+.artifact-voting button.active-vote:hover:not(:disabled) {
+  background-color: var(--forest-light);
+  color: #ffffff;
 }
 
 .artifact-score {
@@ -329,6 +354,47 @@
   font-weight: 800;
   text-align: center;
 }
+
+/* Voting controls used on the artifact details page */
+
+.details-voting {
+  padding: 0.3rem;
+}
+
+.artifact-details-actions .artifact-voting {
+  margin-right: 0;
+}
+
+.artifact-details-actions .artifact-voting button {
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+.artifact-details-actions .artifact-voting button:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  color: var(--gold-light);
+}
+
+.artifact-details-actions .artifact-voting button.active-vote {
+  background-color: var(--forest);
+  color: #ffffff;
+}
+
+.artifact-details-actions
+  .artifact-voting
+  button.active-vote:hover:not(:disabled) {
+  background-color: var(--forest-light);
+  color: #ffffff;
+}
+
+/* ==============================
+   Card Actions
+============================== */
 
 .artifact-comment-count {
   color: var(--text-muted);
@@ -346,6 +412,10 @@
 .view-artifact-link:hover {
   text-decoration: underline;
 }
+
+/* ==============================
+   Tablet and Mobile
+============================== */
 
 @media (max-width: 700px) {
   .archive-hero {
@@ -388,5 +458,10 @@
 
   .artifact-image {
     max-height: 320px;
+  }
+
+  .artifact-voting button {
+    width: 38px;
+    height: 38px;
   }
 }

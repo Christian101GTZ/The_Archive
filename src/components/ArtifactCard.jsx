@@ -4,9 +4,19 @@ function ArtifactCard({
   artifact,
   isVoting,
   handleVote,
+  currentUserId,
 }) {
   const hasImage = Boolean(artifact.image_url);
   const commentCount = artifact.comments?.length || 0;
+  const votes = artifact.votes || [];
+
+  const score = votes.reduce(
+    (total, vote) => total + vote.vote_value,
+    0
+  );
+
+  const currentUserVote =
+    votes.find((vote) => vote.user_id === currentUserId)?.vote_value || 0;
 
   return (
     <article
@@ -16,7 +26,7 @@ function ArtifactCard({
     >
       <div className="artifact-card-content">
         <p className="artifact-category">
-          {artifact.category || "Uncategorized"}
+          {artifact.category || "General"}
         </p>
 
         <Link
@@ -68,23 +78,27 @@ function ArtifactCard({
         <div className="artifact-actions">
           <div className="artifact-voting">
             <button
+              className={currentUserVote === 1 ? "active-vote" : ""}
               type="button"
               onClick={() => handleVote(artifact, 1)}
               disabled={isVoting}
               aria-label={`Upvote ${artifact.title}`}
+              aria-pressed={currentUserVote === 1}
             >
               ▲
             </button>
 
             <span className="artifact-score">
-              {artifact.upvotes || 0}
+              {score}
             </span>
 
             <button
+              className={currentUserVote === -1 ? "active-vote" : ""}
               type="button"
               onClick={() => handleVote(artifact, -1)}
               disabled={isVoting}
               aria-label={`Downvote ${artifact.title}`}
+              aria-pressed={currentUserVote === -1}
             >
               ▼
             </button>
@@ -99,7 +113,7 @@ function ArtifactCard({
             className="view-artifact-link"
             to={`/artifacts/${artifact.id}`}
           >
-            View Artifact →
+            View Post →
           </Link>
         </div>
       </div>

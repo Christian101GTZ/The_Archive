@@ -1,0 +1,167 @@
+/* ==============================
+   Authentication Pages
+============================== */
+
+.auth-page {
+  display: grid;
+  min-height: calc(100vh - 80px);
+  place-items: center;
+  padding: 3rem 1.5rem;
+}
+
+.auth-card {
+  width: min(100%, 500px);
+  border: 1px solid #d7d7d7;
+  border-radius: 16px;
+  background-color: #ffffff;
+  color: #111827;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.auth-card h1 {
+  margin: 0 0 0.75rem;
+  color: #111827;
+}
+
+.auth-card p {
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.auth-label {
+  margin-bottom: 0.5rem;
+  color: #2f6f55;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+/* These styles now affect only authentication forms */
+
+.auth-form .form-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.auth-form .form-field label {
+  color: #111827;
+  font-weight: 600;
+}
+
+.auth-form .form-field input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #111827;
+  padding: 0.85rem 1rem;
+  font: inherit;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-form .form-field input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+.auth-form .form-field input:focus {
+  border-color: #2f6f55;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 111, 85, 0.2);
+}
+
+/* ==============================
+   Authentication Button
+============================== */
+
+.auth-form button {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background-color: #2f6f55;
+  color: #ffffff;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.auth-form button:hover:not(:disabled) {
+  background-color: #255a45;
+  transform: translateY(-1px);
+}
+
+.auth-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ==============================
+   Authentication Messages
+============================== */
+
+.auth-card .form-message {
+  margin: 0;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+}
+
+.auth-card .error-message {
+  border: 1px solid #f3b4b4;
+  background-color: #ffe3e3;
+  color: #8b0000;
+}
+
+.auth-card .success-message {
+  border: 1px solid #a8dfb0;
+  background-color: #e4f7e7;
+  color: #145c24;
+}
+
+/* ==============================
+   Authentication Switch Link
+============================== */
+
+.auth-switch {
+  margin-top: 1.75rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.auth-switch a {
+  color: #2f6f55;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+/* ==============================
+   Mobile
+============================== */
+
+@media (max-width: 550px) {
+  .auth-page {
+    padding: 2rem 1rem;
+  }
+
+  .auth-card {
+    padding: 1.5rem;
+  }
+}

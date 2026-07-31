@@ -19,8 +19,8 @@ function CommentCard({
           disabled={deletingCommentId === comment.id}
         >
           {deletingCommentId === comment.id
-            ? "Deleting..."
-            : "Delete"}
+            ? "Removing..."
+            : "Delete Comment"}
         </button>
       </div>
     </article>

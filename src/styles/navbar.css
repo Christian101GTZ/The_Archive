@@ -119,3 +119,29 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.nav-user {
+  max-width: 220px;
+  overflow: hidden;
+  color: #d1d5db;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.logout-button:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 760px) {
+  .nav-user {
+    display: none;
+  }
+}

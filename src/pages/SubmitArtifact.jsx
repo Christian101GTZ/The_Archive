@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import ArtifactForm from "../components/ArtifactForm";
 
 function SubmitArtifact() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, authLoading } = useAuth();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -38,7 +41,7 @@ function SubmitArtifact() {
 
     const fileExtension = imageFile.name.split(".").pop();
     const fileName = `${crypto.randomUUID()}.${fileExtension}`;
-    const filePath = `artifacts/${fileName}`;
+    const filePath = `${user.id}/${fileName}`;
 
     const { error } = await supabase.storage
       .from("artifact-images")
@@ -58,6 +61,11 @@ function SubmitArtifact() {
   async function handleSubmit(event) {
     event.preventDefault();
 
+    if (!user) {
+      setErrorMessage("You must be logged in to create a post.");
+      return;
+    }
+
     setErrorMessage("");
     setIsSubmitting(true);
 
@@ -73,6 +81,7 @@ function SubmitArtifact() {
           year: formData.year.trim() || null,
           tags: formData.tags.trim() || null,
           upvotes: 0,
+          user_id: user.id,
         },
       ]);
 
@@ -82,8 +91,8 @@ function SubmitArtifact() {
 
       navigate("/");
     } catch (error) {
-      console.error(error);
-      setErrorMessage(error.message);
+      console.error("Unable to create artifact:", error);
+      setErrorMessage(error.message || "Unable to create the post.");
       setIsSubmitting(false);
     }
   }
@@ -92,16 +101,36 @@ function SubmitArtifact() {
     navigate("/");
   }
 
+  if (authLoading) {
+    return (
+      <main className="artifact-form-page">
+        <p>Checking your account...</p>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: location,
+        }}
+      />
+    );
+  }
+
   return (
     <main className="artifact-form-page">
       <section className="artifact-form-header">
-        <p className="archive-eyebrow">Contribute to the collection</p>
+        <p className="archive-eyebrow">Add a new entry</p>
 
-        <h2>Submit an Artifact</h2>
+        <h2>Submit to the Archive</h2>
 
         <p>
-          Document media, historical material, or cultural artifacts worth
-          preserving.
+          Add a piece of media, an object, or a record that others should know
+          about.
         </p>
       </section>
 
@@ -111,14 +140,14 @@ function SubmitArtifact() {
           handleChange={handleChange}
           handleSubmit={handleSubmit}
           errorMessage={errorMessage}
-          submitButtonText="Submit Artifact"
-          submittingButtonText="Submitting..."
+          submitButtonText="Add Entry"
+          submittingButtonText="Adding Entry..."
           isSubmitting={isSubmitting}
           handleCancel={handleCancel}
           newImageFile={imageFile}
           handleImageChange={handleImageChange}
-          imageLabel="Artifact Image"
-          imageHelperText="Optional. Accepted formats: PNG, JPEG, and WebP."
+          imageLabel="Upload an Image"
+          imageHelperText="Optional. Use a PNG, JPEG, or WebP file."
         />
       </section>
     </main>

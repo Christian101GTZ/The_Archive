@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 import { supabase } from "../services/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import ArchiveControls from "../components/ArchiveControls";
 import ArtifactFeed from "../components/ArtifactFeed";
 
 function Home() {
+  const navigate = useNavigate();
+  const { user, authLoading } = useAuth();
+
   const [artifacts, setArtifacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("newest");
@@ -13,8 +18,10 @@ function Home() {
   const [votingId, setVotingId] = useState(null);
 
   useEffect(() => {
-    fetchArtifacts();
-  }, []);
+    if (!authLoading) {
+      fetchArtifacts();
+    }
+  }, [authLoading, user?.id]);
 
   async function fetchArtifacts() {
     setLoading(true);
@@ -26,11 +33,16 @@ function Home() {
         *,
         comments (
           id
+        ),
+        votes (
+          id,
+          user_id,
+          vote_value
         )
       `);
 
     if (error) {
-      console.error(error);
+      console.error("Unable to load artifacts:", error);
       setErrorMessage("Artifacts could not be loaded.");
       setLoading(false);
       return;
@@ -40,38 +52,107 @@ function Home() {
     setLoading(false);
   }
 
-  async function handleVote(artifact, amount) {
-    setVotingId(artifact.id);
-    setErrorMessage("");
+  async function handleVote(artifact, voteValue) {
+    if (!user) {
+      navigate("/login", {
+        state: {
+          from: {
+            pathname: "/",
+          },
+        },
+      });
 
-    const newVoteCount = (artifact.upvotes || 0) + amount;
-
-    const { data, error } = await supabase
-      .from("artifact")
-      .update({
-        upvotes: newVoteCount,
-      })
-      .eq("id", artifact.id)
-      .select()
-      .single();
-
-    setVotingId(null);
-
-    if (error) {
-      console.error(error);
-      setErrorMessage("The vote could not be recorded.");
       return;
     }
 
-    setArtifacts((currentArtifacts) =>
-      currentArtifacts.map((currentArtifact) =>
-        currentArtifact.id === data.id
-          ? {
-              ...currentArtifact,
-              ...data,
-            }
-          : currentArtifact
-      )
+    if (votingId) {
+      return;
+    }
+
+    setVotingId(artifact.id);
+    setErrorMessage("");
+
+    const existingVote = artifact.votes?.find(
+      (vote) => vote.user_id === user.id
+    );
+
+    try {
+      let updatedVotes = artifact.votes || [];
+
+      if (existingVote?.vote_value === voteValue) {
+        const { error } = await supabase
+          .from("votes")
+          .delete()
+          .eq("id", existingVote.id)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        updatedVotes = updatedVotes.filter(
+          (vote) => vote.id !== existingVote.id
+        );
+      } else if (existingVote) {
+        const { data, error } = await supabase
+          .from("votes")
+          .update({
+            vote_value: voteValue,
+          })
+          .eq("id", existingVote.id)
+          .eq("user_id", user.id)
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        updatedVotes = updatedVotes.map((vote) =>
+          vote.id === existingVote.id ? data : vote
+        );
+      } else {
+        const { data, error } = await supabase
+          .from("votes")
+          .insert({
+            artifact_id: artifact.id,
+            user_id: user.id,
+            vote_value: voteValue,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        updatedVotes = [...updatedVotes, data];
+      }
+
+      setArtifacts((currentArtifacts) =>
+        currentArtifacts.map((currentArtifact) =>
+          currentArtifact.id === artifact.id
+            ? {
+                ...currentArtifact,
+                votes: updatedVotes,
+              }
+            : currentArtifact
+        )
+      );
+    } catch (error) {
+      console.error("Unable to save vote:", error);
+      setErrorMessage(
+        error.message || "The vote could not be recorded."
+      );
+    } finally {
+      setVotingId(null);
+    }
+  }
+
+  function getVoteScore(artifact) {
+    return (artifact.votes || []).reduce(
+      (total, vote) => total + vote.vote_value,
+      0
     );
   }
 
@@ -96,7 +177,7 @@ function Home() {
     }
 
     if (sortOption === "most-upvoted") {
-      return (b.upvotes || 0) - (a.upvotes || 0);
+      return getVoteScore(b) - getVoteScore(a);
     }
 
     if (sortOption === "title-az") {
@@ -106,10 +187,10 @@ function Home() {
     return 0;
   });
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <main className="home-page">
-        <p>Loading artifacts...</p>
+        <p>Loading archive...</p>
       </main>
     );
   }
@@ -119,18 +200,18 @@ function Home() {
       <section className="archive-hero">
         <div className="archive-hero-content">
           <p className="archive-eyebrow">
-            Community Preservation Archive
+            Community Archive
           </p>
 
           <h1>The Archive Project</h1>
 
           <p className="archive-hero-description">
-            Preserve media, historical artifacts, and cultural works before
-            they are forgotten.
+            Share and document media, objects, and cultural material worth
+            keeping.
           </p>
 
           <Link className="hero-submit-link" to="/submit">
-            Submit an Artifact
+            Add to the Archive
           </Link>
         </div>
       </section>
@@ -138,13 +219,16 @@ function Home() {
       <section className="archive-explore-section">
         <div className="archive-section-heading">
           <div>
-            <p className="archive-eyebrow">Browse the collection</p>
-            <h2>Explore the Archive</h2>
+            <p className="archive-eyebrow">
+              Archive Entries
+            </p>
+
+            <h2>Browse Submissions</h2>
           </div>
 
           <p className="artifact-result-count">
             Showing {sortedArtifacts.length}{" "}
-            {sortedArtifacts.length === 1 ? "artifact" : "artifacts"}
+            {sortedArtifacts.length === 1 ? "entry" : "entries"}
           </p>
         </div>
 
@@ -156,13 +240,16 @@ function Home() {
         />
 
         {errorMessage && (
-          <p className="error-message">{errorMessage}</p>
+          <p className="error-message">
+            {errorMessage}
+          </p>
         )}
 
         <ArtifactFeed
           artifacts={sortedArtifacts}
           votingId={votingId}
           handleVote={handleVote}
+          currentUserId={user?.id || null}
         />
       </section>
     </main>

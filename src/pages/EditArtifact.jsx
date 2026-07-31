@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
 import { supabase } from "../services/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import ArtifactForm from "../components/ArtifactForm";
 
 function EditArtifact() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const { user, authLoading } = useAuth();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -15,6 +25,7 @@ function EditArtifact() {
     tags: "",
   });
 
+  const [artifactOwnerId, setArtifactOwnerId] = useState("");
   const [currentImageUrl, setCurrentImageUrl] = useState("");
   const [newImageFile, setNewImageFile] = useState(null);
 
@@ -23,8 +34,10 @@ function EditArtifact() {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    fetchArtifact();
-  }, [id]);
+    if (!authLoading && user) {
+      fetchArtifact();
+    }
+  }, [id, user, authLoading]);
 
   async function fetchArtifact() {
     setLoading(true);
@@ -37,11 +50,19 @@ function EditArtifact() {
       .single();
 
     if (error) {
-      console.error(error);
-      setErrorMessage("Artifact could not be found.");
+      console.error("Unable to load artifact:", error);
+      setErrorMessage("This entry could not be found.");
       setLoading(false);
       return;
     }
+
+    if (data.user_id !== user.id) {
+      setErrorMessage("You do not have permission to edit this post.");
+      setLoading(false);
+      return;
+    }
+
+    setArtifactOwnerId(data.user_id);
 
     setFormData({
       title: data.title || "",
@@ -73,27 +94,43 @@ function EditArtifact() {
       return currentImageUrl || null;
     }
 
-    const fileExtension = newImageFile.name.split(".").pop();
-    const fileName = `${crypto.randomUUID()}.${fileExtension}`;
-    const filePath = `artifacts/${fileName}`;
+    if (!user) {
+      throw new Error("You must be logged in to upload an image.");
+    }
 
-    const { error } = await supabase.storage
+    const fileExtension =
+      newImageFile.name.split(".").pop()?.toLowerCase() || "jpg";
+
+    const fileName = `${crypto.randomUUID()}.${fileExtension}`;
+    const filePath = `${user.id}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
       .from("artifact-images")
       .upload(filePath, newImageFile);
 
-    if (error) {
-      throw new Error(`Image upload failed: ${error.message}`);
+    if (uploadError) {
+      throw new Error(`Image upload failed: ${uploadError.message}`);
     }
 
-    const { data } = supabase.storage
+    const { data: publicUrlData } = supabase.storage
       .from("artifact-images")
       .getPublicUrl(filePath);
 
-    return data.publicUrl;
+    return publicUrlData.publicUrl;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    if (!user) {
+      setErrorMessage("You must be logged in to edit this post.");
+      return;
+    }
+
+    if (artifactOwnerId !== user.id) {
+      setErrorMessage("You do not have permission to edit this post.");
+      return;
+    }
 
     setErrorMessage("");
     setIsUpdating(true);
@@ -101,7 +138,7 @@ function EditArtifact() {
     try {
       const imageUrl = await uploadNewImage();
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("artifact")
         .update({
           title: formData.title.trim(),
@@ -111,16 +148,23 @@ function EditArtifact() {
           year: formData.year.trim() || null,
           tags: formData.tags.trim() || null,
         })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
 
       if (error) {
         throw error;
       }
 
+      if (!data) {
+        throw new Error("The post could not be updated.");
+      }
+
       navigate(`/artifacts/${id}`);
     } catch (error) {
-      console.error(error);
-      setErrorMessage(error.message);
+      console.error("Unable to update artifact:", error);
+      setErrorMessage(error.message || "Unable to update the post.");
       setIsUpdating(false);
     }
   }
@@ -129,10 +173,30 @@ function EditArtifact() {
     navigate(`/artifacts/${id}`);
   }
 
+  if (authLoading) {
+    return (
+      <main className="artifact-form-page">
+        <p>Checking your account...</p>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: location,
+        }}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <main className="artifact-form-page">
-        <p>Loading artifact...</p>
+        <p>Loading entry...</p>
       </main>
     );
   }
@@ -148,13 +212,13 @@ function EditArtifact() {
   return (
     <main className="artifact-form-page">
       <section className="artifact-form-header">
-        <p className="archive-eyebrow">Update the collection</p>
+        <p className="archive-eyebrow">Edit this entry</p>
 
-        <h2>Edit Artifact</h2>
+        <h2>Update Archive Entry</h2>
 
         <p>
-          Correct information, add more historical context, or replace the
-          artifact image.
+          Fix any details, add missing information, or upload a different
+          image.
         </p>
       </section>
 
@@ -165,14 +229,14 @@ function EditArtifact() {
           handleSubmit={handleSubmit}
           errorMessage={errorMessage}
           submitButtonText="Save Changes"
-          submittingButtonText="Saving Changes..."
+          submittingButtonText="Saving..."
           isSubmitting={isUpdating}
           handleCancel={handleCancel}
           currentImageUrl={currentImageUrl}
           newImageFile={newImageFile}
           handleImageChange={handleImageChange}
-          imageLabel="Replace Artifact Image"
-          imageHelperText="Optional. Leave this empty to keep the current image."
+          imageLabel="Choose a New Image"
+          imageHelperText="Optional. Leave this blank to keep the current image."
         />
       </section>
     </main>

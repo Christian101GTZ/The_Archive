@@ -10,7 +10,7 @@ function CommentForm({
       onSubmit={handleCommentSubmit}
     >
       <label htmlFor="comment-content">
-        Add to the discussion
+        Join the discussion
       </label>
 
       <textarea
@@ -19,7 +19,7 @@ function CommentForm({
         onChange={(e) =>
           setCommentContent(e.target.value)
         }
-        placeholder="Share information, context, or your thoughts..."
+        placeholder="Share your thoughts, additional details, or helpful context..."
         maxLength={1000}
       />
 
@@ -32,7 +32,7 @@ function CommentForm({
         >
           {isPostingComment
             ? "Posting..."
-            : "Post Comment"}
+            : "Post Reply"}
         </button>
       </div>
     </form>
