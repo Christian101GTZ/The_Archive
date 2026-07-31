@@ -4,7 +4,15 @@
 
 Submitted by: **Christian Gomez Diaz**
 
-The Archive Project is a community-driven platform dedicated to preserving historical artifacts, physical media, lost media, books, games, films, music, and other culturally significant items. Registered users can securely create an account, log in, submit artifacts with images and descriptions, browse and search the archive, vote on posts, leave comments, and manage their own contributions through Supabase Authentication and Row Level Security (RLS).
+## Live Demo
+
+🌐 **Website:** https://thearchive101.netlify.app
+
+---
+
+## Overview
+
+The Archive Project is a full-stack React web application dedicated to preserving historical artifacts, physical media, lost media, books, games, films, music, and other culturally significant items. Registered users can securely create an account, log in, submit artifacts with images and descriptions, browse and search the archive, vote on posts, leave comments, and manage their own contributions through Supabase Authentication and Row Level Security (RLS).
 
 Time spent: **50+** hours spent in total
 
@@ -56,10 +64,8 @@ The following **required** functionality is completed:
 
 The following **optional** functionality is completed:
 
-- [x] Users can add additional characteristics to their posts
-  - [x] Upload images directly from their local computer
-  - [x] Images stored using Supabase Storage
-
+- [x] Users can upload images directly from their local computer
+- [x] Images stored using Supabase Storage
 - [x] Loading state displayed while data is being fetched
 
 ---
@@ -70,26 +76,24 @@ The following **additional** features are implemented:
 
 - [x] Secure user authentication using Supabase Authentication
 - [x] User registration and login system
-- [x] Protected routes for authenticated users
-- [x] Row Level Security (RLS) for secure database access
+- [x] Protected routes
+- [x] Row Level Security (RLS)
 - [x] Ownership verification for editing and deleting artifacts
 - [x] Ownership verification for deleting comments
 - [x] Upvote and downvote voting system
 - [x] One vote per user per artifact
-- [x] Vote switching (change from upvote to downvote and vice versa)
-- [x] Vote removal by clicking the same vote again
+- [x] Vote switching
+- [x] Vote removal
 - [x] Comment count displayed on artifact cards
-- [x] Users can delete their own comments
-- [x] Responsive layout for desktop and mobile devices
-- [x] Image preview while editing artifacts
+- [x] Responsive design
+- [x] Image preview while editing
 - [x] Search functionality
 - [x] Multiple sorting options
 - [x] Reusable React components
-- [x] Shared ArtifactForm component for creating and editing artifacts
-- [x] Modular CSS organization
+- [x] Shared ArtifactForm component
+- [x] Modular CSS architecture
 - [x] Empty-state messages
 - [x] Success and error notifications
-- [x] Hero landing page
 
 ---
 
@@ -111,7 +115,42 @@ The following **additional** features are implemented:
 
 ---
 
-## Project Structure
+# Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/Christian101GTZ/The_Archive.git
+```
+
+Navigate into the project
+
+```bash
+cd The_Archive
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Create a `.env` file and add:
+
+```env
+VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+Run the development server
+
+```bash
+npm run dev
+```
+
+---
+
+# Project Structure
 
 ```text
 src/
@@ -161,13 +200,11 @@ src/
 
 Here's a walkthrough of the implemented user stories.
 
-> **Add your ScreenToGif recording here before submission.**
+> Add your ScreenToGif recording here before submission.
 
 ```html
 <img src="YOUR_GIF_LINK_HERE" title="Video Walkthrough" width="100%" alt="Video Walkthrough" />
 ```
-
-GIF created with **ScreenToGif**.
 
 ---
 
@@ -175,11 +212,11 @@ GIF created with **ScreenToGif**.
 
 One of the biggest challenges during development was implementing secure user authentication while ensuring users could only modify their own content. After integrating Supabase Authentication, every artifact and comment needed to be associated with the authenticated user's account.
 
-Implementing Row Level Security (RLS) was another significant challenge. Database policies were created to ensure only authenticated users could create content and that only the owner of an artifact or comment could edit or delete it. This added an important layer of security while keeping the application user-friendly.
+Implementing Row Level Security (RLS) required creating database policies that restricted database operations based on the authenticated user's ID. This ensured only authorized users could create, edit, or delete their own content.
 
-Another major challenge involved redesigning the voting system. The original implementation simply stored a vote count on each artifact. This was replaced with a dedicated **Votes** table that stores one vote per user per artifact. This design allows users to upvote, downvote, switch votes, or remove their vote while preventing duplicate votes and keeping vote totals accurate.
+Another significant challenge was redesigning the voting system. The original implementation stored a vote count directly on each artifact. It was replaced with a dedicated Votes table that stores one vote per user per artifact, allowing users to switch votes, remove votes, and preventing duplicate voting.
 
-As the project continued to grow, many components became increasingly large and difficult to maintain. To improve organization, the application was refactored into reusable React components and shared functionality. Components such as **ArtifactForm**, **Navbar**, and the authentication context helped simplify the codebase and reduce duplication.
+As the project expanded, many components became increasingly large. Refactoring the application into reusable React components and modular CSS significantly improved maintainability and reduced duplicated code.
 
 Working with Supabase Storage also required coordinating image uploads with database operations so uploaded images were stored correctly and their public URLs were saved alongside each artifact.
 
@@ -188,8 +225,6 @@ Overall, this project provided valuable experience building a full-stack React a
 ---
 
 # Future Improvements
-
-Possible future improvements include:
 
 - User profile pages
 - User avatars
@@ -212,11 +247,4 @@ Possible future improvements include:
 
 Copyright 2026 Christian Gomez Diaz
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an **"AS IS" BASIS**, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+Licensed under the Apache License, Version 2.0.
