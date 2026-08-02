@@ -1,3 +1,9 @@
+/**
+ * ArchiveControls.jsx — Search and sort bar
+ *
+ * The row of controls above the feed: a search box and a sort dropdown. It just
+ * reports changes back to the Home page, which does the actual filtering.
+ */
 function ArchiveControls({
   searchTerm,
   setSearchTerm,

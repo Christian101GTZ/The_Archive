@@ -1,4 +1,12 @@
+/**
+ * ArtifactCard.jsx — One post in the feed
+ *
+ * The preview card for a single post: its category, title, image, description,
+ * vote buttons, comment count, and a link to the full post.
+ */
 import { Link } from "react-router-dom";
+
+import { getVoteScore } from "../services/votes";
 
 function ArtifactCard({
   artifact,
@@ -10,10 +18,7 @@ function ArtifactCard({
   const commentCount = artifact.comments?.length || 0;
   const votes = artifact.votes || [];
 
-  const score = votes.reduce(
-    (total, vote) => total + vote.vote_value,
-    0
-  );
+  const score = getVoteScore(artifact);
 
   const currentUserVote =
     votes.find((vote) => vote.user_id === currentUserId)?.vote_value || 0;

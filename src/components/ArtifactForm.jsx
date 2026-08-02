@@ -1,3 +1,10 @@
+/**
+ * ArtifactForm.jsx — Shared post form
+ *
+ * The form used for both creating and editing a post (title, description,
+ * category, image, year, tags). It doesn't save anything itself — the parent
+ * page passes in the values and the handlers, so the same form works for both.
+ */
 function ArtifactForm({
   formData,
   handleChange,

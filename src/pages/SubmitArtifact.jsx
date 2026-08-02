@@ -1,3 +1,10 @@
+/**
+ * SubmitArtifact.jsx — Create-a-post page ("/submit")
+ *
+ * Lets a logged-in user add a new post. It handles the form state, uploads an
+ * optional image to storage, saves the post to the database, then sends the
+ * user back home. Visitors who aren't logged in are redirected to login.
+ */
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
@@ -80,7 +87,6 @@ function SubmitArtifact() {
           image_url: imageUrl,
           year: formData.year.trim() || null,
           tags: formData.tags.trim() || null,
-          upvotes: 0,
           user_id: user.id,
         },
       ]);

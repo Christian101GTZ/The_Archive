@@ -1,7 +1,15 @@
+/**
+ * Home.jsx — Home page (the "/" route)
+ *
+ * Loads every post and shows them in a feed. Lets the user search, sort, and
+ * vote. The search and sort happen here in the browser on the already-loaded
+ * list.
+ */
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { supabase } from "../services/supabaseClient";
+import { submitVote, getVoteScore } from "../services/votes";
 import { useAuth } from "../context/AuthContext";
 import ArchiveControls from "../components/ArchiveControls";
 import ArtifactFeed from "../components/ArtifactFeed";
@@ -72,62 +80,8 @@ function Home() {
     setVotingId(artifact.id);
     setErrorMessage("");
 
-    const existingVote = artifact.votes?.find(
-      (vote) => vote.user_id === user.id
-    );
-
     try {
-      let updatedVotes = artifact.votes || [];
-
-      if (existingVote?.vote_value === voteValue) {
-        const { error } = await supabase
-          .from("votes")
-          .delete()
-          .eq("id", existingVote.id)
-          .eq("user_id", user.id);
-
-        if (error) {
-          throw error;
-        }
-
-        updatedVotes = updatedVotes.filter(
-          (vote) => vote.id !== existingVote.id
-        );
-      } else if (existingVote) {
-        const { data, error } = await supabase
-          .from("votes")
-          .update({
-            vote_value: voteValue,
-          })
-          .eq("id", existingVote.id)
-          .eq("user_id", user.id)
-          .select()
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        updatedVotes = updatedVotes.map((vote) =>
-          vote.id === existingVote.id ? data : vote
-        );
-      } else {
-        const { data, error } = await supabase
-          .from("votes")
-          .insert({
-            artifact_id: artifact.id,
-            user_id: user.id,
-            vote_value: voteValue,
-          })
-          .select()
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        updatedVotes = [...updatedVotes, data];
-      }
+      const updatedVotes = await submitVote(artifact, user.id, voteValue);
 
       setArtifacts((currentArtifacts) =>
         currentArtifacts.map((currentArtifact) =>
@@ -147,13 +101,6 @@ function Home() {
     } finally {
       setVotingId(null);
     }
-  }
-
-  function getVoteScore(artifact) {
-    return (artifact.votes || []).reduce(
-      (total, vote) => total + vote.vote_value,
-      0
-    );
   }
 
   const filteredArtifacts = artifacts.filter((artifact) => {

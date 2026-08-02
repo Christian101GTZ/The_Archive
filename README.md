@@ -12,9 +12,9 @@ Submitted by: **Christian Gomez Diaz**
 
 ## Overview
 
-The Archive Project is a full-stack React web application dedicated to preserving historical artifacts, physical media, lost media, books, games, films, music, and other culturally significant items. Registered users can securely create an account, log in, submit artifacts with images and descriptions, browse and search the archive, vote on posts, leave comments, and manage their own contributions through Supabase Authentication and Row Level Security (RLS).
+The Archive Project is a full-stack React app for saving and sharing media worth keeping — things like physical media, lost media, books, games, films, and music. Users can make an account, log in, and post an item with a picture and description. Anyone can browse, search, vote, and comment, and you can edit or delete your own posts. Logins and permissions are handled by Supabase.
 
-Time spent: **50+** hours spent in total
+Time spent: **50+** hours in total
 
 ---
 
@@ -154,7 +154,7 @@ npm run dev
 
 ```text
 src/
-├── components/
+├── components/         Reusable UI pieces
 │   ├── ArchiveControls.jsx
 │   ├── ArtifactCard.jsx
 │   ├── ArtifactDetailsActions.jsx
@@ -166,22 +166,26 @@ src/
 │   ├── CommentList.jsx
 │   └── Navbar.jsx
 │
-├── context/
+├── context/            Global login state
 │   └── AuthContext.jsx
 │
-├── pages/
+├── hooks/              Reusable logic
+│   └── useComments.js
+│
+├── pages/              One file per page/route
 │   ├── ArtifactDetails.jsx
 │   ├── EditArtifact.jsx
 │   ├── Home.jsx
 │   ├── Login.jsx
+│   ├── NotFound.jsx
 │   ├── SignUp.jsx
 │   └── SubmitArtifact.jsx
 │
-├── services/
-│   ├── auth.js
-│   └── supabaseClient.js
+├── services/           Talks to Supabase
+│   ├── supabaseClient.js
+│   └── votes.js
 │
-├── styles/
+├── styles/             CSS files
 │   ├── artifact-details.css
 │   ├── artifact-form.css
 │   ├── auth.css
@@ -190,8 +194,8 @@ src/
 │   └── navbar.css
 │
 ├── App.css
-├── App.jsx
-└── main.jsx
+├── App.jsx             Main layout and routes
+└── main.jsx            App entry point
 ```
 
 ---
@@ -200,27 +204,27 @@ src/
 
 Here's a walkthrough of the implemented user stories.
 
-> Add your ScreenToGif recording here before submission.
+### Desktop
 
-```html
-<img src="YOUR_GIF_LINK_HERE" title="Video Walkthrough" width="100%" alt="Video Walkthrough" />
-```
+<img src="src/assets/Final_Project.gif" title="Desktop walkthrough" width="100%" alt="Desktop walkthrough of The Archive Project" />
+
+### Mobile
+
+<img src="src/assets/Final_Project_Phone.gif" title="Mobile walkthrough" width="300" alt="Mobile walkthrough of The Archive Project" />
 
 ---
 
 # Challenges Encountered
 
-One of the biggest challenges during development was implementing secure user authentication while ensuring users could only modify their own content. After integrating Supabase Authentication, every artifact and comment needed to be associated with the authenticated user's account.
+The hardest part was making sure users could only change their own posts and comments. Every post and comment is tied to the account that made it, and Supabase's Row Level Security (RLS) rules block anyone else from editing or deleting it.
 
-Implementing Row Level Security (RLS) required creating database policies that restricted database operations based on the authenticated user's ID. This ensured only authorized users could create, edit, or delete their own content.
+The voting system also took a few tries. At first each post just stored a single number for its score. I replaced that with a separate Votes table that saves one vote per user per post, which made it possible to switch a vote, remove a vote, and stop people from voting twice.
 
-Another significant challenge was redesigning the voting system. The original implementation stored a vote count directly on each artifact. It was replaced with a dedicated Votes table that stores one vote per user per artifact, allowing users to switch votes, remove votes, and preventing duplicate voting.
+As the app grew, some files got too big. Splitting them into smaller, reusable components (and one shared form) made the code easier to read and cut down on repeated code.
 
-As the project expanded, many components became increasingly large. Refactoring the application into reusable React components and modular CSS significantly improved maintainability and reduced duplicated code.
+Image uploads were tricky too, since the picture has to be saved to storage first and then its link saved with the post.
 
-Working with Supabase Storage also required coordinating image uploads with database operations so uploaded images were stored correctly and their public URLs were saved alongside each artifact.
-
-Overall, this project provided valuable experience building a full-stack React application using authentication, cloud storage, relational databases, reusable components, CRUD operations, and secure user permissions.
+Overall this project was great practice at building a full app with logins, file storage, a database, reusable components, and secure permissions.
 
 ---
 

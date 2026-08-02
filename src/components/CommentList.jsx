@@ -1,3 +1,10 @@
+/**
+ * CommentList.jsx — The list of comments
+ *
+ * Shows one CommentCard per comment. Handles the two special cases too: a
+ * "loading" message while comments are being fetched, and an "empty" message
+ * when there are none yet.
+ */
 import CommentCard from "./CommentCard";
 
 function CommentList({
@@ -6,6 +13,7 @@ function CommentList({
   deletingCommentId,
   handleDeleteComment,
   formatCommentDate,
+  currentUserId,
 }) {
   if (commentsLoading) {
     return <p>Loading discussion...</p>;
@@ -28,6 +36,7 @@ function CommentList({
           deletingCommentId={deletingCommentId}
           handleDeleteComment={handleDeleteComment}
           formatCommentDate={formatCommentDate}
+          currentUserId={currentUserId}
         />
       ))}
     </div>

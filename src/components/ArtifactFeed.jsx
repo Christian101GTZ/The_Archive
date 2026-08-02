@@ -1,3 +1,9 @@
+/**
+ * ArtifactFeed.jsx — The list of posts
+ *
+ * Takes the list of posts and shows one ArtifactCard for each. If the list is
+ * empty it shows a friendly "nothing here" message instead.
+ */
 import ArtifactCard from "./ArtifactCard";
 
 function ArtifactFeed({

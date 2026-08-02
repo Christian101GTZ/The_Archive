@@ -1,3 +1,10 @@
+/**
+ * SignUp.jsx — Create-account page ("/signup")
+ *
+ * Collects an email and password (twice), checks they match and are long
+ * enough, then creates the account. If the account is ready right away it goes
+ * home; otherwise it asks the user to confirm their email.
+ */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";

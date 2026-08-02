@@ -1,3 +1,9 @@
+/**
+ * CommentForm.jsx — Box for writing a comment
+ *
+ * The text area and Post button for adding a comment, with a live character
+ * count. The parent page handles actually saving it.
+ */
 function CommentForm({
   commentContent,
   setCommentContent,

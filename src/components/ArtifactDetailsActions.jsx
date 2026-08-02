@@ -1,3 +1,9 @@
+/**
+ * ArtifactDetailsActions.jsx — Buttons on the post page
+ *
+ * The action row under a post: the up/down vote buttons and the score, plus
+ * Edit and Delete buttons that only show for the post's owner.
+ */
 import { Link } from "react-router-dom";
 
 function ArtifactDetailsActions({

@@ -1,3 +1,10 @@
+/**
+ * EditArtifact.jsx — Edit-a-post page ("/artifacts/:id/edit")
+ *
+ * Loads an existing post into the form and lets its owner change the details or
+ * swap the image, then saves the changes. Only the post's owner is allowed in;
+ * anyone else is blocked or redirected.
+ */
 import { useEffect, useState } from "react";
 import {
   Navigate,

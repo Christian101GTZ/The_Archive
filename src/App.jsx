@@ -1,3 +1,9 @@
+/**
+ * App.jsx — Main layout and routes
+ *
+ * Shows the Navbar on every page and picks which page to render based on the
+ * URL. The last route ("*") catches any unknown address and shows NotFound.
+ */
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -7,6 +13,7 @@ import EditArtifact from "./pages/EditArtifact";
 import "./App.css";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -20,6 +27,7 @@ function App() {
         <Route path="/submit" element={<SubmitArtifact />} />
         <Route path="/artifacts/:id" element={<ArtifactDetails />} />
         <Route path="/artifacts/:id/edit" element={<EditArtifact />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );

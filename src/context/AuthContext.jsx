@@ -1,3 +1,10 @@
+/**
+ * AuthContext.jsx — Login state for the whole app
+ *
+ * Keeps track of who is logged in. It loads the current Supabase session,
+ * updates it when the user logs in or out, and provides sign up / sign in /
+ * sign out actions. Any component can read this with the useAuth() hook.
+ */
 import {
   createContext,
   useContext,

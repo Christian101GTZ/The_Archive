@@ -1,3 +1,10 @@
+/**
+ * Login.jsx — Log-in page ("/login")
+ *
+ * Collects an email and password and signs the user in. After a successful
+ * login it sends them back to the page they came from (or home). Already
+ * logged-in users are bounced straight to home.
+ */
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";

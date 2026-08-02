@@ -1,3 +1,9 @@
+/**
+ * ArtifactDetailsHeader.jsx — Top of the post page
+ *
+ * The heading block on the single-post page: the category, the title, and the
+ * year (if one was given).
+ */
 function ArtifactDetailsHeader({ artifact }) {
   return (
     <header className="artifact-details-header">
